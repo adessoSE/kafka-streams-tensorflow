@@ -92,7 +92,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>de.adesso.kafkaml.sample.ModelServing</mainClass>
+                            <!-- <mainClass>de.adesso.kafkaml.sample.ModelServing</mainClass> -->
                         </manifest>
                     </archive>
                 </configuration>

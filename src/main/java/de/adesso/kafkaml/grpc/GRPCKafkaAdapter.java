@@ -26,16 +26,6 @@ import java.util.concurrent.TimeUnit;
  *
  * Connection between Kafka and Tensorflow via asynchronous REST calls using GRPC
  *
- * @author Max Hofmann
- *
- * References:
- * https://github.com/grpc/grpc-java/blob/master/benchmarks/src/main/java/io/grpc/benchmarks/qps/AsyncClient.java
- * https://grpc.io/docs/tutorials/basic/java.html
- *
- * https://github.com/tensorflow/serving/blob/master/tensorflow_serving/apis/prediction_service.proto
- * https://github.com/tobegit3hub/deep_image_model/blob/master/java_predict_client/src/main/java/com/tobe/InceptionPredictClient.java
- * https://github.com/fzschornack/tensorflow-java-client/blob/master/src/main/java/tensorflow/serving/PredictionServiceGrpc.java
- *
  */
 public class GRPCKafkaAdapter {
 
