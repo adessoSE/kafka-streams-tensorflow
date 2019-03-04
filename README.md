@@ -13,7 +13,10 @@ https://github.com/kaiwaehner/kafka-streams-machine-learning-example
 
 In order to do fraud detection, this application will read from a Kafka topic using Kafka Streams, send each message to Tensorflow and write the resulting message (including the classification) to another Kafka topic.
 
-####Pseudocode
+### Credit Scoring
+To be implemented
+
+## Pseudocode (Fraud)
 
 ```
 1) For each message in INPUT_TOPIC:
@@ -28,10 +31,6 @@ In order to do fraud detection, this application will read from a Kafka topic us
     (Acknowledgement: Success/failure)
         - Show status returned by Kafka acknowledgement
 ````
-
-### Credit Scoring
-To be implemented
-
 
 ## Building and Running
 
