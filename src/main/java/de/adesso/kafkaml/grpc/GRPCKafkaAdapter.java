@@ -71,25 +71,20 @@ public class GRPCKafkaAdapter {
 
 
     public void runKafka() {
-        //TODO: Add Listeners to Future requests
-        //TODO: Proper configuration
-        //TODO: Kafka
         Properties kafkaStreamsConfig = generateKafkaConfig();
 
         final StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<String, String> inputLines = builder.stream(inputTopic);
-
         // Key is not relevant
+        final KStream<String, String> inputLines = builder.stream(inputTopic);
         inputLines.foreach((key, value) -> predictAndReport(tfModelName, tfModelVersion, value));
 
         startKafkaStream(kafkaStreamsConfig, builder);
     }
 
     private void startKafkaStream(Properties kafkaStreamsConfig, StreamsBuilder builder) {
-
         // Start Kafka Streams Application to process new incoming images from the Input
-        // Topic
+        // Initialize streams application
         final KafkaStreams streams = new KafkaStreams(builder.build(), kafkaStreamsConfig);
 
         streams.cleanUp();
@@ -123,65 +118,6 @@ public class GRPCKafkaAdapter {
         return streamsConfiguration;
     }
 
-/*
-    void runProducer(final int sendMessageCount) throws InterruptedException {
-        long time = System.currentTimeMillis();
-        final CountDownLatch countDownLatch = new CountDownLatch(sendMessageCount);
-
-        try {
-            for (long index = time; index < time + sendMessageCount; index++) {
-                final ProducerRecord<String, String> record =
-                        new ProducerRecord<>(this.outputTopic, String.valueOf(index), "Hello Mom " + index);
-                producer.send(record, (metadata, exception) -> {
-                    long elapsedTime = System.currentTimeMillis() - time;
-                    if (metadata != null) {
-                        System.out.printf("sent record(key=%s value=%s) " +
-                                        "meta(partition=%d, offset=%d) time=%d\n",
-                                record.key(), record.value(), metadata.partition(),
-                                metadata.offset(), elapsedTime);
-                    } else {
-                        exception.printStackTrace();
-                    }
-                    countDownLatch.countDown();
-                });
-            }
-            countDownLatch.await(25, TimeUnit.SECONDS);
-        }finally {
-            producer.flush();
-            producer.close();
-        }
-    }
-*/
-
-/*
-    private void runKafka() {
-        // In the subsequent lines we define the processing topology of the
-        // Streams application.
-        final StreamsBuilder builder = new StreamsBuilder();
-
-        final KStream<String, String> inputLines = builder.stream(inputTopic);
-
-        // Key is not relevant
-        inputLines.foreach((key, value) -> {
-            predictAndReport(tfModelName, tfModelVersion, value);
-        });
-        // Start Kafka Streams Application to process new incoming images from the Input
-        // Topic
-        final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
-
-        streams.cleanUp();
-
-        streams.start();
-
-        System.out.println("Fraud classification is running...");
-
-        System.out.println("Input to Kafka Topic " + inputTopic + "; Output to Kafka Topic " + inputTopic);
-
-        // Add shutdown hook to respond to SIGTERM and gracefully close Kafka
-        // Streams
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-    }
-*/
 
     private void predictAndReport(String modelName, int modelVersion, String contentJson) {
 
