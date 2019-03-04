@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * Connection between Kafka and Tensorflow via asynchronous REST calls using GRPC
+ * Connection between Kafka and Tensorflow via asynchronous REST calls using gRPC
  *
  */
 public class GRPCKafkaAdapter {
@@ -41,13 +41,13 @@ public class GRPCKafkaAdapter {
     private final String tfModelName;
     private final int tfModelVersion;
 
-    // Tensorflow Services
+    // Tensorflow and gRPC Services
     private final ManagedChannel channel;
     // FutureStub allows asynchronous behaviour
     private final PredictionServiceGrpc.PredictionServiceFutureStub fStub;
 
     // Kafka Services
-    // FutureCallback for sending data to Kafka
+    // FutureCallback for sending classified data back to Kafka
     private final TensorflowKafkaCallback kafkaReporter;
 
 
@@ -103,16 +103,12 @@ public class GRPCKafkaAdapter {
     private Properties generateKafkaConfig() {
         // Configure Kafka Streams Application
         final Properties streamsConfiguration = new Properties();
-        // Give the Streams application a unique name. The name must be unique
-        // in the Kafka cluster
-        // against which the application is run.
+        // Give the Streams application a unique name. The name must be unique in the Kafka cluster
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG,
                 "kafka-streams-tensorflow-fraud");
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-
-        // Specify default (de)serializers for record keys and for record
-        // values.
+        // Specify default (de)serializers for record keys and for record values
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         return streamsConfiguration;
@@ -144,8 +140,8 @@ public class GRPCKafkaAdapter {
         Predict.PredictRequest request = Predict.PredictRequest.newBuilder().setModelSpec(modelSpec)
                 .putInputs("data", featuresTensorProto).build();
 
-        // Perform gRPC request
-        ListenableFuture<Predict.PredictResponse> responseFuture = fStub.predict(request); //addListener({}).get();
+        // Perform gRPC request asynchronously
+        ListenableFuture<Predict.PredictResponse> responseFuture = fStub.predict(request);
         Futures.addCallback(responseFuture, kafkaReporter);
     }
 
@@ -158,9 +154,5 @@ public class GRPCKafkaAdapter {
             e.printStackTrace(System.err);
         }
     }
-
-
-
-
 
 }
