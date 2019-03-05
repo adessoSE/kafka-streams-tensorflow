@@ -54,7 +54,7 @@ public class ConfigReader {
      */
     private Map<String, String> readFile(String fileName) {
         String line;
-        Map<String, String> confContent = Collections.emptyMap();
+        Map<String, String> confContent = new HashMap<>();
         // Initialize readers
         try (
                 FileInputStream fs = new FileInputStream(fileName);
