@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +12,6 @@ import java.util.Map;
 public class ConfigReader {
 
     public final Map<String, String> conf = new HashMap<>();
-
 
     // Tensorflow Model
     public static final String TENSORFLOW_MODEL_NAME = "tf.model.name";
@@ -29,9 +27,7 @@ public class ConfigReader {
     public ConfigReader(String configFile, String[] additional_args) {
         this.conf.putAll(readConfig(configFile, additional_args));
         // Print config after initialization for better debugging
-        this.conf.forEach((k, v) -> {
-            System.out.println("Setting Key=|" + k + "| Value=|" + v + "|");
-        });
+        this.conf.forEach((k, v) -> System.out.println("Setting Key=|" + k + "| Value=|" + v + "|"));
     }
 
 
