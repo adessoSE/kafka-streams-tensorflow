@@ -28,6 +28,10 @@ public class ConfigReader {
 
     public ConfigReader(String configFile, String[] additional_args) {
         this.conf.putAll(readConfig(configFile, additional_args));
+        // Print config after initialization for better debugging
+        this.conf.forEach((k, v) -> {
+            System.out.println("Setting Key=|" + k + "| Value=|" + v + "|");
+        });
     }
 
 
