@@ -88,9 +88,9 @@ public class GRPCKafkaAdapter {
         final KafkaStreams streams = new KafkaStreams(builder.build(), kafkaStreamsConfig);
 
         streams.cleanUp();
-
         streams.start();
 
+        System.out.println("\nListening to input at topic " + inputTopic);
         System.out.println("Fraud classification is running...");
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka

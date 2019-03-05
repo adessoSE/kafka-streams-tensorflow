@@ -69,11 +69,27 @@ wget tensorflow and tensorflow_serving from git releases
  
 cd /.../tensorflow/tensorflow/core/framework
 
+wget http://central.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.19.0/protoc-gen-grpc-java-1.19.0-linux-x86_64.exe
+
+Keep trying to build using:
 protoc -I=. --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java --grpc-java_out=java-pb-files --java_out=java-pb-files *.proto
 
+If there is an error with something missing, copy all .proto-files from that directory here and remove/replace their paths using the following commands
 find ./*.proto -type f -exec sed -i 's+tensorflow_serving/config/++g' {} +
 
-wget http://central.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.19.0/protoc-gen-grpc-java-1.19.0-linux-x86_64.exe
+# Alternatively:
+Directory strucutre:
+test/tensorflow/core
+test/tensorflow_serving/framework/
+
+cd test
+
+for x in $(find '*.proto')
+do
+protoc -I=. --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java-1.19.0-linux-x86_64.exe \
+--grpc-java_out=java-pb-files --java_out=java-pb-files $x
+done
+
 ```
 ## References
 
