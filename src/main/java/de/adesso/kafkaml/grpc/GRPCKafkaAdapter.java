@@ -77,7 +77,11 @@ public class GRPCKafkaAdapter {
 
         // Key is not relevant
         final KStream<String, String> inputLines = builder.stream(inputTopic);
-        inputLines.foreach((key, value) -> predictAndReport(tfModelName, tfModelVersion, value));
+        inputLines.foreach((key, value) -> {
+            System.out.println("key:" + key + ", val: " + value);
+            predictAndReport(tfModelName, tfModelVersion, value);
+
+        });
 
         startKafkaStream(kafkaStreamsConfig, builder);
     }
