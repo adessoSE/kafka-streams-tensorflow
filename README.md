@@ -46,11 +46,11 @@ mvn clean package
 
 As described in [Confluent - Running Streams Application](https://docs.confluent.io/current/streams/developer-guide/running-app.html) this application can be executed as follows:
 ```bash
-java -cp kafka-streams-tensorflow-1.0-SNAPSHOT-jar-with.dependencies.jar de.adesso.kafkaml.FraudModelServing test.fraud.properties
+java -cp kafka-streams-tensorflow-1.0-SNAPSHOT-jar-with-dependencies.jar de.adesso.kafkaml.FraudModelServing test.fraud.properties
 ```
 This application also supports overwriting parameters from the configuration file via additional command line parameters:
 ```bash
-java -cp kafka-streams-tensorflow.git de.adesso.kafkaml.FraudModelServing test.fraud.properties tf.model.version=2.0
+java -cp kafka-streams-tensorflow-1.0-SNAPSHOT-jar-with-dependencies.jar de.adesso.kafkaml.FraudModelServing test.fraud.properties tf.model.version=2.0
 ```
  
 

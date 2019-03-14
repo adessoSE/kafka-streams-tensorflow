@@ -2,6 +2,8 @@ package de.adesso.kafkaml.grpc;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.Int64Value;
 import com.google.protobuf.util.JsonFormat;
 import de.adesso.kafkaml.conf.ConfigReader;
 import io.grpc.ManagedChannel;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
 
 
 /**
@@ -63,25 +66,32 @@ public class GRPCKafkaAdapter {
         String tfHost = confIn.get(ConfigReader.TENSORFLOW_SERVING_HOST);
         int tfPort = Integer.parseInt(confIn.get(ConfigReader.TENSORFLOW_SERVING_PORT));
         channel = ManagedChannelBuilder.forAddress(tfHost, tfPort).usePlaintext().build();
+        System.out.println("Created channel");
+
         fStub = PredictionServiceGrpc.newFutureStub(channel);
+        System.out.println("Created stub");
 
         // Initialize Kafka
         kafkaReporter = new TensorflowKafkaCallback(confIn);
+        System.out.println("Created KafkaCallback");
     }
 
 
     public void runKafka() {
         Properties kafkaStreamsConfig = generateKafkaConfig();
-
+        System.out.println("Generated Kafka Config");
         final StreamsBuilder builder = new StreamsBuilder();
+        System.out.println("Initialized Streams Builder");
+
 
         // Key is not relevant
         final KStream<String, String> inputLines = builder.stream(inputTopic);
         inputLines.foreach((key, value) -> {
             System.out.println("key:" + key + ", val: " + value);
             predictAndReport(tfModelName, tfModelVersion, value);
-
         });
+
+        System.out.println("Defined stream");
 
         startKafkaStream(kafkaStreamsConfig, builder);
     }
@@ -89,8 +99,10 @@ public class GRPCKafkaAdapter {
     private void startKafkaStream(Properties kafkaStreamsConfig, StreamsBuilder builder) {
         // Start Kafka Streams Application to process new incoming images from the Input
         // Initialize streams application
+        System.out.println("Initializing Streams");
         final KafkaStreams streams = new KafkaStreams(builder.build(), kafkaStreamsConfig);
 
+        System.out.println("Starting Streams");
         streams.cleanUp();
         streams.start();
 
@@ -137,25 +149,40 @@ public class GRPCKafkaAdapter {
 
         Model.ModelSpec.Builder modelTensorBuilder = Model.ModelSpec.newBuilder().setName(modelName);
         if (modelVersion > 0) {
-            com.google.protobuf.Int64Value version = com.google.protobuf.Int64Value.newBuilder().setValue(modelVersion).build();
+            Int64Value version = Int64Value.newBuilder().setValue(modelVersion).build();
             modelTensorBuilder.setVersion(version);
         }
         Model.ModelSpec modelSpec = modelTensorBuilder.build();
         Predict.PredictRequest request = Predict.PredictRequest.newBuilder().setModelSpec(modelSpec)
                 .putInputs("data", featuresTensorProto).build();
 
-        // Perform gRPC request asynchronously
+
         ListenableFuture<Predict.PredictResponse> responseFuture = fStub.predict(request);
-        Futures.addCallback(responseFuture, kafkaReporter);
+
+        // Alternative to directExecutor:
+
+        // For Async non-blocking functions (like here) CachedThreadPool should be best
+        // https://github.com/google/guava/issues/1863
+
+        //ExecutorService executor = Executors.newCachedThreadPool();
+        // executor.shutdown in shutdownHook
+        //ExecutorService ex = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        // Perform gRPC request asynchronously
+        Futures.addCallback(responseFuture, kafkaReporter, MoreExecutors.directExecutor());
+        //Futures.addCallback(responseFuture, kafkaReporter, executor);
     }
 
 
     private void shutdown() {
+        System.out.println("\nShutting down");
         kafkaReporter.shutdown();
         try {
             channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace(System.err);
+        } finally {
+            System.out.println("Shutdown finished");
         }
     }
 
