@@ -42,5 +42,8 @@
     <orderEntry type="library" name="Maven: io.grpc:grpc-protobuf-lite:1.19.0" level="project" />
     <orderEntry type="library" name="Maven: io.grpc:grpc-stub:1.19.0" level="project" />
     <orderEntry type="library" name="Maven: io.grpc:grpc-netty-shaded:1.19.0" level="project" />
+    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.15" level="project" />
+    <orderEntry type="library" name="Maven: com.j256.ormlite:ormlite-jdbc:5.1" level="project" />
+    <orderEntry type="library" name="Maven: com.j256.ormlite:ormlite-core:5.1" level="project" />
   </component>
 </module>
