@@ -1,11 +1,7 @@
 package de.adesso.kafkaml.mysql;
 
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
 
 import java.util.Date;
 
@@ -85,21 +81,5 @@ public class Transaction {
 
         this.timestamp = new Date();
     }
-
-    public static void main(String[] args){
-        String transaction = "2143,CASH_OUT,242.59,C0062930186,San Antonio,29.05.2019,07:22,CASH_OUT_C0062930186_M0117517494,-22098.08,-22340.67,M0117517494,566.24,566.24,0,0,0";
-        Transaction t = new Transaction(transaction);
-        System.out.println(t.toString());
-
-        try (ConnectionSource source = new JdbcConnectionSource("jdbc:mysql://localhost:3306/dna_showcase?user=root&password=adesso123!")) {
-
-            Dao<Transaction, Integer> transactionDao = DaoManager.createDao(source, Transaction.class);
-            transactionDao.create(new Transaction(transaction));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-
 }
 
