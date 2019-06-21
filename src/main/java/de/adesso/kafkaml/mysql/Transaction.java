@@ -54,7 +54,6 @@ public class Transaction {
     public Transaction(String transaction){
         String[] values = transaction.split(",");
 
-        System.out.println(this.numTransactions);
         this.transactionId = this.numTransactions;
         this.numTransactions++;
 
