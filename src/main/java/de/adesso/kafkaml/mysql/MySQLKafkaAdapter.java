@@ -5,6 +5,7 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import de.adesso.kafkaml.conf.ConfigReader;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -20,6 +21,7 @@ public class MySQLKafkaAdapter {
     // Kafka Variables
     private final String inputTopic;
     private final String bootstrapServers;
+    private final String kafkaOffset;
     //MySQL Variables
     private final String databaseURL;
     private final String databaseUser;
@@ -31,6 +33,7 @@ public class MySQLKafkaAdapter {
         databaseURL = confIn.get(ConfigReader.MYSQL_URI);
         databaseUser = confIn.get(ConfigReader.MYSQL_USER);
         databasePassword = confIn.get(ConfigReader.MYSQL_PASSWORD);
+        kafkaOffset = confIn.get(ConfigReader.KAFKA_OFFSET);
     }
 
     public void runKafka(){
@@ -73,6 +76,7 @@ public class MySQLKafkaAdapter {
         // Specify default (de)serializers for record keys and for record values
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamsConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaOffset);
         return streamsConfiguration;
     }
 

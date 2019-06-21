@@ -23,6 +23,7 @@ public class ConfigReader {
     public static final String KAFKA_INPUT_TOPIC = "kafka.topic.input";
     public static final String KAFKA_OUTPUT_TOPIC = "kafka.topic.output";
     public static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
+    public static final String KAFKA_OFFSET = "kafka.offset";
     // MySQL
     public static final String MYSQL_URI = "mysql.url";
     public static final String MYSQL_USER = "mysql.user";
