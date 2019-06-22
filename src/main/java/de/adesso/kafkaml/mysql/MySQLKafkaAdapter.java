@@ -15,6 +15,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ArrayDeque;
 
 public class MySQLKafkaAdapter {
 
@@ -26,6 +27,10 @@ public class MySQLKafkaAdapter {
     private final String databaseURL;
     private final String databaseUser;
     private final String databasePassword;
+
+    //tmp Storage
+    private final int N = 10000;
+    private ArrayDeque<Transaction> tmpTransactions = new ArrayDeque<Transaction>(N);
 
     public MySQLKafkaAdapter(Map<String, String> confIn){
         inputTopic = confIn.get(ConfigReader.KAFKA_INPUT_TOPIC);
@@ -49,10 +54,13 @@ public class MySQLKafkaAdapter {
             // Key is not relevant
             final KStream<String, String> inputLines = builder.stream(inputTopic);
             inputLines.foreach((key, value) -> {
-                try {
-                    transactionDao.create(new Transaction(value));
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                tmpTransactions.add(new Transaction(value));
+                if (tmpTransactions.size() >= N) {
+                    try {
+                        transactionDao.create(tmpTransactions);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 
@@ -76,7 +84,7 @@ public class MySQLKafkaAdapter {
         // Specify default (de)serializers for record keys and for record values
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, kafkaOffset);
+        streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, kafkaOffset);
         return streamsConfiguration;
     }
 
@@ -95,7 +103,18 @@ public class MySQLKafkaAdapter {
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka
         // Streams
-        Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-    }
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    Thread.sleep(200);
+                    System.out.println("Shouting down ...");
+                    streams.close();
 
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }
